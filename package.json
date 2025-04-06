@@ -1,0 +1,23 @@
+{
+  "name": "fgoshelpbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "prettier": "prettier ./index.js --write"
+  },
+  "author": "alexavil",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@sentry/node": "^9.6.0",
+    "@sentry/profiling-node": "^9.6.0",
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
+    "fs-extra": "^11.3.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "openai": "^4.83.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  }
+}

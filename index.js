@@ -3,7 +3,7 @@ require("dotenv/config");
 const Sentry = require("@sentry/node");
 
 Sentry.init({
-  dsn: "https://c0f3b8ffd401c00337f393c79c80a6f6@o4506205891985408.ingest.us.sentry.io/4509000116797440",
+  dsn: "https://3b783ef845c833b8edb50b96ac68b1a2@o4506205891985408.ingest.us.sentry.io/4509105556422656",
 });
 
 const TelegramBot = require("node-telegram-bot-api");
@@ -37,70 +37,46 @@ db.prepare(
 let isAiActive = false;
 
 let menu = function (mode, chatId, callbackId) {
+  let text = `Добро пожаловать!\nВ 2025 году в России отметят 80 лет со дня Победы в Великой Отечественной войне 1941-1945 гг.\n\nПредлагаем вспомнить учёных и изобретения, которые приближали эту Великую Победу.`;
+  let keyboard = [
+    [
+      {
+        text: "Учёные-герои Великой Победы",
+        callback_data: "faq",
+      },
+    ],
+    [
+      {
+        text: "Задать вопрос",
+        callback_data: "ai",
+      },
+    ],
+    [
+      {
+        text: "Получить плакаты",
+        callback_data: "poster",
+      },
+    ],
+  ];
   switch (mode) {
     default: {
       return false;
     }
     case "post": {
-      return bot.sendMessage(
-        chatId,
-        `Добро пожаловать!\nДанный бот создан для методического сопровождения учителей в процессе реализации федеральных государственных образовательных стандартов (ФГОС) в России.\n\nПожалуйста, выберите действие:`,
-        {
-          reply_markup: {
-            inline_keyboard: [
-              [
-                {
-                  text: "Узнать информацию о ФГОС",
-                  callback_data: "faq",
-                },
-              ],
-              [
-                {
-                  text: "Задать вопрос",
-                  callback_data: "ai",
-                },
-              ],
-              [
-                {
-                  text: "Получить плакаты",
-                  callback_data: "poster",
-                },
-              ],
-            ],
-          },
+      return bot.sendMessage(chatId, text, {
+        reply_markup: {
+          inline_keyboard: keyboard,
         },
-      );
+      });
     }
     case "edit": {
-      return bot.editMessageText(
-        `Добро пожаловать!\nДанный бот создан для методического сопровождения учителей в процессе реализации федеральных государственных образовательных стандартов (ФГОС) в России.\n\nПожалуйста, выберите действие:`,
-        {
-          chat_id: chatId,
-          message_id: callbackId,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                {
-                  text: "Узнать информацию о ФГОС",
-                  callback_data: "faq",
-                },
-              ],
-              [
-                {
-                  text: "Задать вопрос",
-                  callback_data: "ai",
-                },
-              ],
-              [
-                {
-                  text: "Получить плакаты",
-                  callback_data: "poster",
-                },
-              ],
-            ],
-          },
+      return bot.editMessageText(text, {
+        chat_id: chatId,
+        message_id: callbackId,
+        reply_markup: {
+          inline_keyboard: keyboard,
         },
-      );
+      });
     }
   }
 };
@@ -150,7 +126,7 @@ bot.on("callback_query", (callback) => {
         },
       ]);
       bot.editMessageText(
-        `Здесь вы можете узнать основную информацию о ФГОС.\nПожалуйста, выберите вопрос.`,
+        `Эти учёные прближали Великую Победу. Помним, гордимся, чтим...`,
         {
           chat_id: chatId,
           message_id: callback.message.message_id,
@@ -205,7 +181,7 @@ bot.on("callback_query", (callback) => {
         case false: {
           isAiActive = true;
           let prompt = bot.editMessageText(
-            `Задайте свой вопрос - наш помощник попробует дать на него ответ.\n_⚠️ Будьте вежливы и старайтесь чётко формулировать вопрос. Помните о том, что ответственность за реализацию ФГОС на занятиях несёте только вы, и проверяйте информацию._`,
+            `Задайте свой вопрос - наш помощник попробует дать на него ответ.\n_⚠️ Будьте вежливы и старайтесь чётко формулировать вопрос._`,
             {
               chat_id: chatId,
               message_id: callback.message.message_id,
@@ -262,8 +238,7 @@ bot.on("callback_query", (callback) => {
               if (completion.error || completion.choices === undefined) {
                 Sentry.captureException(completion.error);
                 message = "Произошла ошибка. Попробуйте задать вопрос ещё раз.";
-              }
-              else message = completion.choices[0].message.content;
+              } else message = completion.choices[0].message.content;
               response = message
                 .replaceAll("**", "")
                 .replaceAll("*", "")
